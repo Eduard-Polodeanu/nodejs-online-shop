@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        
+        <p>Răspunsuri introduse: <%= raspunsuriU %> </p>
+        <p>Răspunsuri corecte: <%= raspunsuriC %> </p>
+
+        <% 
+        let nrCorecte = 0;
+        for (let index = 0; index < raspunsuriU.length; index++) {
+            if (raspunsuriU[index] == raspunsuriC[index]) {
+                nrCorecte++;
+            }
+        }
+        %>
+
+        <p>Scor: <%= nrCorecte %> / <%= raspunsuriC.length %></p>
+
+    </body>
+</html>

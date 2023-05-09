@@ -24,21 +24,31 @@ app.get('/', (req, res) => res.send('Hello World'));
 
 // la accesarea din browser adresei http://localhost:6789/chestionar se va apela funcția specificată
 app.get('/chestionar', (req, res) => {
-    const listaIntrebari = [
-    {
-        intrebare: 'Întrebarea 1',
-        variante: ['varianta 1', 'varianta 2', 'varianta 3', 'varianta 4'],
-        corect: 0
-    },
-    //...
-    ];
+    const fs = require('fs');
+
+    fs.readFile('public\\intrebari.json', 'utf8', (err, data) => {
+    if (err) {
+        console.error(err);
+        return;
+    }
+    const listaIntrebari = JSON.parse(data);
+    //console.log(listaIntrebari);
+
     // în fișierul views/chestionar.ejs este accesibilă variabila 'intrebari' care conține vectorul de întrebări
     res.render('chestionar', {intrebari: listaIntrebari});
+    });
 });
 
 app.post('/rezultat-chestionar', (req, res) => {
-    console.log(req.body);
-    res.send("formular: " + JSON.stringify(req.body));
+    const raspunsuriCorecte = [0, 3, 3, 3, 1, 0, 3, 3];
+    const raspunsuriUser = Object.values(req.body);
+    if (raspunsuriUser.length != raspunsuriCorecte.length) {
+        res.status(400).send("Error 400: You must answer to all questions!");
+        return;
+    }
+    res.render('rezultat-chestionar', {raspunsuriU: raspunsuriUser, raspunsuriC: raspunsuriCorecte});
+
+    //console.log(req.body);
 });
 
-app.listen(port, () => console.log(`Serverul rulează la adresa http://localhost:`));
+app.listen(port, () => console.log(`Serverul rulează la adresa http://localhost:` + port));

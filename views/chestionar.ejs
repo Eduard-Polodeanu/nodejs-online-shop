@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <div class="content">
+            <form action="/rezultat-chestionar" method="post">
+                <% intrebari.forEach((question, index) => { %>
+                    <label for="intrebare<%= index %>"> <%= question.intrebare %> </label>
+                    <% question.variante_raspuns.forEach((varianta, indexVariante) => { %>
+                        <input type="radio" name="intrebare<%= index %>" value= <%= indexVariante %> > <%= varianta %> </input>
+                    <% }); %>
+                    <br>
+                <% }); %>
+                <button type="submit">Verifică</button>
+            </form>
+        </div>
+    </body>
+</html>

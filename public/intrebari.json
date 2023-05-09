@@ -1,0 +1,82 @@
+[
+    {
+        "intrebare": "Care dintre următoarele documente este folosit pentru a dovedi dreptul de proprietate asupra unei proprietăți?",
+        "variante_raspuns": [
+            "Contract de vânzare-cumpărare",
+            "Contract de închiriere",
+            "Certificat de naștere",
+            "Permis de conducere"
+        ],
+        "corect": 0
+    },
+    {
+        "intrebare": "Care dintre următoarele documente este folosit pentru a înregistra o marcă comercială?",
+        "variante_raspuns": [
+            "Certificat de căsătorie",
+            "Carte de identitate",
+            "Certificat de naștere",
+            "Cerere de înregistrare a mărcii"
+        ],
+        "corect": 3
+    },
+    {
+        "intrebare": "Ce document trebuie să prezinte o persoană la angajare pentru a dovedi dreptul de a lucra într-o anumită țară?",
+        "variante_raspuns": [
+            "Diplomă de absolvire",
+            "Certificat de naștere",
+            "Pașaport",
+            "Permis de muncă"
+        ],
+        "corect": 3
+    },
+    {
+        "intrebare": "Care dintre următoarele documente este folosit pentru a face o cerere de credit bancar?",
+        "variante_raspuns": [
+            "Certificat de căsătorie",
+            "Raport medical",
+            "Declarație de impozit",
+            "Declarație de venit"
+        ],
+        "corect": 3
+    },
+    {
+        "intrebare": "Ce document trebuie să prezinte o persoană la închirierea unei locuințe?",
+        "variante_raspuns": [
+            "Certificat de naștere",
+            "Act de identitate",
+            "Certificat de căsătorie",
+            "Diplomă de absolvire"
+        ],
+        "corect": 1
+    },
+    {
+        "intrebare": "Care dintre următoarele documente este folosit pentru a face o cerere de divorț?",
+        "variante_raspuns": [
+            "Certificat de căsătorie",
+            "Diplomă de absolvire",
+            "Act de identitate",
+            "Raport medical"
+        ],
+        "corect": 0
+    },
+    {
+        "intrebare": "Ce document trebuie să prezinte o persoană la înregistrarea unei companii?",
+        "variante_raspuns": [
+            "Certificat de naștere",
+            "Act de identitate",
+            "Diplomă de absolvire",
+            "Certificat de înregistrare a companiei"
+        ],
+        "corect": 3
+    },
+    {
+        "intrebare": "Care dintre următoarele documente este folosit pentru a dovedi dreptul de identitate?",
+        "variante_raspuns": [
+            "Declarație de impozit",
+            "Certificat de naștere",
+            "Diplomă de absolvire",
+            "Act de identitate"
+        ],
+        "corect": 3
+    }
+]
