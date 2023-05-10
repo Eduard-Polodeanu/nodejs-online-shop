@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <% conturiJSON.forEach(cont => {
+            if (cont.user == contIntrodus[0] && cont.pass == contIntrodus[1]) { %>
+                <p>corect</p>
+            <% }
+            else { %>
+                <p>incorect</p>
+            <% }
+        }); %>
+    </body>
+</html>
