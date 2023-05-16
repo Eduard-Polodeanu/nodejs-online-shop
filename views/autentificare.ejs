@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <body>
-        <form action="/verificare-autentificare" method="post">
+        <form action="/verificare-autentificare" method="POST">
             <label for="utilizator">Utilizator</label>
             <input type="text" name="utilizator">
             <br>
@@ -12,5 +12,7 @@
 
             <button type="submit">Autentificare</button>
         </form>
+
+        <p style="color: red;"><%= cookieError %></p>
     </body>
 </html>

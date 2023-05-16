@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Titlu</title>
+        <title>Acasă</title>
     </head>
 
     <body>
-        <div class="content">
-            <h></h>
-        </div>
+        <% if (username) { %>
+            <p>Logged in as <%= username %></p>
+            <form action="/logout" method="POST">
+              <button type="submit">Sign Out</button>
+            </form>
+          <% } else { %>
+            <a href="/autentificare">Please log in.</a>
+          <% } %>
         <%- body %>
     </body>
 </html>

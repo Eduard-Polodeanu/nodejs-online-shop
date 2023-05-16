@@ -1,0 +1,37 @@
+[
+    {
+        "username": "ion123",
+        "password": "parola123",
+        "firstName": "Ion",
+        "lastName": "Popescu",
+        "age": 30
+    },
+    {
+        "username": "maria456",
+        "password": "parola456",
+        "firstName": "Maria",
+        "lastName": "Ionescu",
+        "age": 25
+    },
+    {
+        "username": "alex789",
+        "password": "parola789",
+        "firstName": "Alexandru",
+        "lastName": "Dumitrescu",
+        "age": 35
+    },
+    {
+        "username": "elena321",
+        "password": "parola321",
+        "firstName": "Elena",
+        "lastName": "Constantinescu",
+        "age": 28
+    },
+    {
+        "username": "mihai654",
+        "password": "parola654",
+        "firstName": "Mihai",
+        "lastName": "Georgescu",
+        "age": 32
+    }
+]
