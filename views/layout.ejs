@@ -9,8 +9,8 @@
 
 <body>
   <nav>
-    <% if (username) { %>
-      <p style="margin: 0; display: inline-block;">Logged in as <%= username %>
+    <% if (usernameSession) { %>
+      <p style="margin: 0; display: inline-block;">Autentificat ca <%= contSession.username %>
       </p>
       <form action="/logout" method="POST" style="display: inline-block;">
         <button type="submit">Sign Out</button>

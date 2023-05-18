@@ -26,8 +26,8 @@ app.use(session({
 }));
 
 app.use((req, res, next) => {
-    res.locals.username = req.session.username;
-    res.locals.cont = req.session.cont;
+    res.locals.usernameSession = req.session.usernameSession;
+    res.locals.contSession = req.session.contSession;
     next();
 });
 
@@ -47,8 +47,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // proprietățile obiectului Request - req - https://expressjs.com/en/api.html#req
 // proprietățile obiectului Response - res - https://expressjs.com/en/api.html#res
 app.get('/', (req, res) => {
-    const usernameCookie = req.cookies.username;
-    const isLoggedIn = req.cookies.isLoggedIn;
+    const usernameCookie = req.cookies.usernameCookie;
 
     con.query('SELECT * FROM produse', function (error, results, fields) {
         if (error) {
@@ -57,9 +56,9 @@ app.get('/', (req, res) => {
             return;
         }
 
-        const userLoggedIn = req.session.username ? true : false;
+        const isLoggedIn = req.session.usernameSession ? true : false;
 
-        res.render('index.ejs', { produse: results, userLoggedIn: userLoggedIn });
+        res.render('index.ejs', { usernameCookie: usernameCookie, produse: results, userLoggedIn: isLoggedIn });
     });
 });
 // la accesarea din browser adresei http://localhost:6789/chestionar se va apela funcția specificată
@@ -94,9 +93,8 @@ app.post('/rezultat-chestionar', (req, res) => {
 
 app.get('/autentificare', (req, res) => {
 
-    const cookieError = req.cookies.mesajEroare;
+    const cookieError = req.cookies.mesajEroareCookie;
     res.render('autentificare', { cookieError: cookieError });
-
 });
 
 app.post('/verificare-autentificare', (req, res) => {
@@ -124,22 +122,20 @@ app.post('/verificare-autentificare', (req, res) => {
 
             if (cont.username === numeContIntrodus && cont.password === parolaContIntrodus) {
                 res.cookie('usernameCookie', numeContIntrodus);
-                res.cookie('isLoggedIn', true);
-                res.clearCookie('mesajEroare');
+                res.clearCookie('mesajEroareCookie');
 
                 const contLogat = conturiJSON[i];
                 // Exclude the password property from the contLogat object
                 const { password, ...contLogatFaraParola } = contLogat;
-                req.session.cont = contLogatFaraParola;
-                req.session.username = contLogat.username;
+                req.session.contSession = contLogatFaraParola;
+                req.session.usernameSession = contLogat.username;
 
                 //console.log(contLogatFaraParola);
                 res.redirect('http://localhost:6789/');
 
                 return;
             } else if (i == conturiJSON.length - 1) {
-                res.cookie('mesajEroare', 'Date incorecte.');
-                res.cookie('isLoggedIn', false);
+                res.cookie('mesajEroareCookie', 'Date incorecte.');
                 req.session.destroy();
                 res.redirect('http://localhost:6789/autentificare');
             }
@@ -149,6 +145,7 @@ app.post('/verificare-autentificare', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
+    res.clearCookie('usernameCookie');
     req.session.destroy();
     res.redirect('/');
 });
