@@ -23,6 +23,14 @@ app.use((req, res, next) => {
 
 const port = 6789;
 
+var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "parola",
+    database: "cumparaturi",
+    insecureAuth: "true"
+});
+
 // directorul 'views' va conține fișierele .ejs (html + js executat la server)
 app.set('view engine', 'ejs');
 // suport pentru layout-uri - implicit fișierul care reprezintă template-ul site-ului este views/layout.ejs
@@ -39,9 +47,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // proprietățile obiectului Response - res - https://expressjs.com/en/api.html#res
 app.get('/', (req, res) => {
     const usernameCookie = req.cookies.username;
-    res.render('index.ejs');
-});
+    const isLoggedIn = req.cookies.isLoggedIn;
 
+    con.query('SELECT * FROM produse', function (error, results, fields) {
+        if (error) {
+            console.error('Error fetching data from "produse" table:', error);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        const userLoggedIn = req.session.username ? true : false;
+
+        res.render('index.ejs', { produse: results, userLoggedIn: userLoggedIn });
+    });
+});
 // la accesarea din browser adresei http://localhost:6789/chestionar se va apela funcția specificată
 app.get('/chestionar', (req, res) => {
     const fs = require('fs');
@@ -104,6 +123,7 @@ app.post('/verificare-autentificare', (req, res) => {
 
             if (cont.username === numeContIntrodus && cont.password === parolaContIntrodus) {
                 res.cookie('usernameCookie', numeContIntrodus);
+                res.cookie('isLoggedIn', true);
                 res.clearCookie('mesajEroare');
 
                 const contLogat = conturiJSON[i];
@@ -118,6 +138,7 @@ app.post('/verificare-autentificare', (req, res) => {
                 return;
             } else if (i == conturiJSON.length - 1) {
                 res.cookie('mesajEroare', 'Date incorecte.');
+                res.cookie('isLoggedIn', false);
                 req.session.destroy();
                 res.redirect('http://localhost:6789/autentificare');
             }
@@ -132,13 +153,6 @@ app.post('/logout', (req, res) => {
 });
 
 app.get('/creare-bd', (req, res) => {
-    var con = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "parola",
-        database: "cumparaturi"
-    });
-
     con.connect(function (err) {
         if (err) throw err;
         console.log("Connected!");
@@ -146,9 +160,9 @@ app.get('/creare-bd', (req, res) => {
         con.query("CREATE DATABASE IF NOT EXISTS cumparaturi", function (err, result) {
             if (err) {
                 if (error.code === 'ER_DB_CREATE_EXISTS') {
-                  console.log('Database "cumparaturi" already exists');
+                    console.log('Database "cumparaturi" already exists');
                 } else {
-                  console.error('Error creating database:', error);
+                    console.error('Error creating database:', error);
                 }
             }
             console.log("Database created");
@@ -158,9 +172,9 @@ app.get('/creare-bd', (req, res) => {
         con.query(sql, function (err, result) {
             if (err) {
                 if (error.code === 'ER_TABLE_EXISTS_ERROR') {
-                  console.log('Table "produse" already exists');
+                    console.log('Table "produse" already exists');
                 } else {
-                  console.error('Error creating table:', error);
+                    console.error('Error creating table:', error);
                 }
             }
             console.log("Table created");
@@ -171,34 +185,27 @@ app.get('/creare-bd', (req, res) => {
 });
 
 app.get('/inserare-bd', (req, res) => {
-    var con = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "parola",
-        database: "cumparaturi"
-    });
-
     const products = [
         { name: 'Product 1', price: 10.99, description: 'Description of Product 1' },
         { name: 'Product 2', price: 19.99, description: 'Description of Product 2' },
         { name: 'Product 3', price: 24.99, description: 'Description of Product 3' }
-      ];
+    ];
 
     con.connect(function (err) {
         if (err) throw err;
         console.log("Connected!");
-        
-          // Iterate over the products array and insert each product into the table
-          products.forEach((product) => {
-            connection.query('INSERT INTO produse SET ?', product, (error, results, fields) => {
-              if (error) {
-                console.error('Error inserting product:', error);
-                return;
-              }
-          
-              console.log('Product inserted successfully');
+
+        // Iterate over the products array and insert each product into the table
+        products.forEach((product) => {
+            con.query('INSERT INTO produse SET ?', product, (error, results, fields) => {
+                if (error) {
+                    console.error('Error inserting product:', error);
+                    return;
+                }
+
+                console.log('Product inserted successfully');
             });
-          });
+        });
     });
 
     res.redirect('/');

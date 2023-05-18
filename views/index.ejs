@@ -1,14 +1,31 @@
 <!DOCTYPE html>
 <html>
 
-    <body>
-        <form>
-            <button type="submit">Creare BD</button>
-        </form>
+<body>
+    <form action="/creare-bd" method="GET">
+        <button type="submit">Creare BD</button>
+    </form>
 
-        <form>
-            <button type="submit">Încarcare BD</button>
-        </form>
-        
-    </body>
+    <form>
+        <button type="submit">Încarcare BD</button>
+    </form>
+
+    <h1>Product List</h1>
+    <% if (produse.length > 0) { %>
+      <ul>
+        <% produse.forEach(function (produs) { %>
+          <li>
+            <%= produs.name %> - $<%= produs.price %>
+            <% if (userLoggedIn) { %>
+              <button onclick="addToCart('<%= produs.id %>')">Adauga in cos</button>
+            <% } %>
+          </li>
+        <% }); %>
+      </ul>
+    <% } else { %>
+      <p>No products available.</p>
+    <% } %>
+
+</body>
+
 </html>
