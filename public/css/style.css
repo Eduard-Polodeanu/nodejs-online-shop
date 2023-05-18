@@ -1,0 +1,31 @@
+body {
+    margin: 0px;
+    margin-bottom: 400px;
+    background-color: #FFF2CC;
+    font-family: Helvetica, Arial, sans-serif;
+    color: #3F3A2E;
+    font-size: 18px;
+}
+
+nav {
+    background-color: #B1AB99;
+    padding: 15px 10px 15px 10px;
+    margin-bottom: 30px;
+    font-size: 24px;
+    border: 2px black solid;
+    border-bottom-width: 1px;
+    overflow: hidden;
+    text-align: center; 
+}
+
+.flex-container {
+    display: flex;
+}
+
+.content-layout {
+    flex: 5;
+}
+
+.empty-side-div {
+    flex: 1;
+}

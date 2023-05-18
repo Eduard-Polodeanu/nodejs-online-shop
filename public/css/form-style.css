@@ -1,0 +1,38 @@
+input, textarea, select {
+    border: 3px solid #B1AB99;
+    border-radius: 3px;
+    padding: 5px 5px 5px 5px;
+    margin: 2px 2px 2px 2px;
+ }
+
+ input[type=submit], input[type=button], button {
+    background-color: #FFF2CC;
+    padding: 10px 14px;
+    border-radius: 4px;
+    border-width: 2px;
+    border-color: #B1AB99;
+    border-style: solid;
+    font-size: 18px;
+    transition: color 0.5s, background-color 0.25s, border-color 0.25s, text-shadow 0.25s;
+ }
+
+ input[type=submit]:hover, input[type=button]:hover, button:hover, input[type=radio]:hover {
+    cursor: pointer;
+    background-color: #B1AB99;
+    color: #FFF2CC;
+    border-color: black;
+    border-width: 1px;
+    text-shadow: 2px 2px black;
+ }
+
+ fieldset {
+    border-color: #3F3A2E;
+    border-width: 1px;
+    border-style: solid;
+    margin-bottom: 25px;
+ }
+
+ legend {
+    font-weight: bold;
+ }
+

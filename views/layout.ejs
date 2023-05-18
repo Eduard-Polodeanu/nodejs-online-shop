@@ -1,18 +1,37 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Acasă</title>
-    </head>
 
-    <body>
-        <% if (username) { %>
-            <p>Logged in as <%= username %></p>
-            <form action="/logout" method="POST">
-              <button type="submit">Sign Out</button>
-            </form>
-          <% } else { %>
-            <a href="/autentificare">Please log in.</a>
-          <% } %>
-        <%- body %>
-    </body>
+<head>
+  <title>Acasă</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/form-style.css">
+</head>
+
+<body>
+  <nav>
+    <% if (username) { %>
+      <p style="margin: 0; display: inline-block;">Logged in as <%= username %>
+      </p>
+      <form action="/logout" method="POST" style="display: inline-block;">
+        <button type="submit">Sign Out</button>
+      </form>
+      <% } else { %>
+        <a href="/autentificare">Please log in</a>
+        <% } %>
+          
+  </nav>
+
+  <div class="flex-container">
+    <div class="empty-side-div"></div>
+
+    <div class="content-layout">
+      <%- body %>
+    </div>
+
+    <div class="empty-side-div"></div>
+
+  </div>
+
+</body>
+
 </html>

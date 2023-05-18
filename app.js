@@ -7,6 +7,16 @@ const mysql = require('mysql2');
 
 const app = express();
 
+const port = 6789;
+
+var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "parola",
+    database: "cumparaturi",
+    insecureAuth: "true"
+});
+
 app.use(cookieParser());
 
 app.use(session({
@@ -21,15 +31,6 @@ app.use((req, res, next) => {
     next();
 });
 
-const port = 6789;
-
-var con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "parola",
-    database: "cumparaturi",
-    insecureAuth: "true"
-});
 
 // directorul 'views' va conține fișierele .ejs (html + js executat la server)
 app.set('view engine', 'ejs');
