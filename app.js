@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const mysql = require('mysql2');
+const { createUnzip } = require('zlib');
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use(session({
 app.use((req, res, next) => {
     res.locals.usernameSession = req.session.usernameSession;
     res.locals.contSession = req.session.contSession;
+    res.locals.cos = req.session.cos;
     next();
 });
 
@@ -208,5 +210,40 @@ app.get('/inserare-bd', (req, res) => {
 
     res.redirect('/');
 });
+
+app.post('/adaugare_cos', function (req, res) {
+    const idProdus = req.body.id;
+
+    let cos = req.session.cos || [];
+    cos.push(idProdus);
+    req.session.cos = cos;
+
+    res.redirect('/');
+});
+
+app.get('/vizualizare-cos', function (req, res) {
+    const cos = req.session.cos;
+
+    const cantitateProduse = {};
+    if (cos) {
+        cos.forEach(function (produsId) {
+            if (cantitateProduse[produsId]) {
+                cantitateProduse[produsId]++;
+            } else {
+                cantitateProduse[produsId] = 1;
+            }
+        });
+
+        con.query('SELECT * FROM produse WHERE id IN (?)', [cos], function (error, results) {
+            if (error) {
+                console.error(error);
+                res.sendStatus(500);
+                return;
+            }
+            res.render('vizualizare-cos.ejs', { produseCos: results, cantitateProduse: cantitateProduse });
+        });
+    }
+});
+
 
 app.listen(port, () => console.log(`Serverul rulează la adresa http://localhost:` + port));

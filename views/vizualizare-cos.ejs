@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <h1>Coș de cumpărături</h1>
+    <% if (produseCos.length> 0) { %>
+        <ul>
+            <% produseCos.forEach(function(produs) { %>
+                <li>
+                    <h3>
+                        <%= produs.name %>
+                    </h3>
+                    <p>Preț începând de la: <%= produs.price * cantitateProduse[produs.id]%> €</p>
+                    <p>Cantitate: <%= cantitateProduse[produs.id] %></p>
+                </li>
+                <% }); %>
+        </ul>
+        <% } else {%>
+            <p style="color: red;">Nu există produse în coșul de cumpărături!</p>
+
+            <% } %>
+                <form action="/" method="GET">
+                    <button type="submit">Înapoi la pagina principală</button>
+                </form>
+</body>
+
+</html>

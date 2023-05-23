@@ -14,20 +14,32 @@
         <button type="submit">Încarcare BD</button>
       </form>
 
-      <h1>Product List</h1>
+      <h1>Listă de produse disponibile:</h1>
       <% if (produse.length> 0) { %>
         <ul>
           <% produse.forEach(function (produs) { %>
             <li>
-              <%= produs.name %> - $<%= produs.price %>
+              <%= produs.name %> - începând de la <%= produs.price %> € <br>
+              <%= produs.description %> <br>
                   <% if (userLoggedIn) { %>
-                    <button onclick="addToCart('<%= produs.id %>')">Adauga in cos</button>
+                    <form action="/adaugare_cos" method="POST" style="display: inline-block;">
+                      <input type="hidden" name="id" value="<%= produs.id %>">
+                      <button type="submit">Adaugă în coș</button>
+                    </form>
                     <% } %>
             </li>
+            <br>
             <% }); %>
         </ul>
         <% } else { %>
           <p>No products available.</p>
+          <% } %>
+
+
+          <% if (userLoggedIn) { %>
+            <form action="/vizualizare-cos" method="GET">
+              <button type="submit">Vizualizează coș </button>
+            </form>
           <% } %>
 
 </body>
