@@ -20,13 +20,13 @@
           <% produse.forEach(function (produs) { %>
             <li>
               <%= produs.name %> - începând de la <%= produs.price %> € <br>
-              <%= produs.description %> <br>
-                  <% if (userLoggedIn) { %>
-                    <form action="/adaugare_cos" method="POST" style="display: inline-block;">
-                      <input type="hidden" name="id" value="<%= produs.id %>">
-                      <button type="submit">Adaugă în coș</button>
-                    </form>
-                    <% } %>
+                  <%= produs.description %> <br>
+                    <% if (userLoggedIn) { %>
+                      <form action="/adaugare_cos" method="POST" style="display: inline-block;">
+                        <input type="hidden" name="id" value="<%= produs.id %>">
+                        <button type="submit">Adaugă în coș</button>
+                      </form>
+                      <% } %>
             </li>
             <br>
             <% }); %>
@@ -36,11 +36,17 @@
           <% } %>
 
 
-          <% if (userLoggedIn) { %>
-            <form action="/vizualizare-cos" method="GET">
-              <button type="submit">Vizualizează coș </button>
-            </form>
-          <% } %>
+            <% if (userLoggedIn) { %>
+              <form action="/vizualizare-cos" method="GET">
+                <button type="submit">Vizualizează coș</button>
+              </form>
+              <% } %>
+
+                <% if (userLoggedIn && isAdmin) { %>
+                  <form action="/admin" method="GET">
+                    <button type="submit">Către pagină administrator</button>
+                  </form>
+                  <% } %>
 
 </body>
 

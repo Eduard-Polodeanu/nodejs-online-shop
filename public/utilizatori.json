@@ -4,34 +4,39 @@
         "password": "parola123",
         "firstName": "Ion",
         "lastName": "Popescu",
-        "age": 30
+        "age": 30,
+        "rol": "admin"
     },
     {
         "username": "maria456",
         "password": "parola456",
         "firstName": "Maria",
         "lastName": "Ionescu",
-        "age": 25
+        "age": 25,
+        "rol": "standard"
     },
     {
         "username": "alex789",
         "password": "parola789",
         "firstName": "Alexandru",
         "lastName": "Dumitrescu",
-        "age": 35
+        "age": 35,
+        "rol": "standard"
     },
     {
         "username": "elena321",
         "password": "parola321",
         "firstName": "Elena",
         "lastName": "Constantinescu",
-        "age": 28
+        "age": 28,
+        "rol": "standard"
     },
     {
         "username": "mihai654",
         "password": "parola654",
         "firstName": "Mihai",
         "lastName": "Georgescu",
-        "age": 32
+        "age": 32,
+        "rol": "standard"
     }
 ]

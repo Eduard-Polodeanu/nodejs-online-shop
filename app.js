@@ -51,7 +51,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
     const usernameCookie = req.cookies.usernameCookie;
 
-    con.query('SELECT * FROM produse', function (error, results, fields) {
+    con.query('SELECT * FROM produse', function (error, results) {
         if (error) {
             console.error('Error fetching data from "produse" table:', error);
             res.status(500).send('Internal Server Error');
@@ -60,7 +60,11 @@ app.get('/', (req, res) => {
 
         const isLoggedIn = req.session.usernameSession ? true : false;
 
-        res.render('index.ejs', { usernameCookie: usernameCookie, produse: results, userLoggedIn: isLoggedIn });
+        if (req.session.contSession) {
+            var isAdmin = req.session.contSession.rol === "admin" ? true : false; 
+        }
+
+        res.render('index.ejs', { usernameCookie: usernameCookie, produse: results, userLoggedIn: isLoggedIn, isAdmin: isAdmin });
     });
 });
 // la accesarea din browser adresei http://localhost:6789/chestionar se va apela funcția specificată
@@ -202,7 +206,6 @@ app.get('/inserare-bd', (req, res) => {
                     console.error('Error inserting product:', error);
                     return;
                 }
-
                 console.log('Product inserted successfully');
             });
         });
@@ -245,5 +248,41 @@ app.get('/vizualizare-cos', function (req, res) {
     }
 });
 
+app.get('/admin', function (req, res) {
+    const cont = req.session.contSession;
+    if (cont) {
+        var privilege = req.session.contSession.rol;
+    }
+
+    const isLoggedIn = req.session.usernameSession ? true : false;
+
+    if (isLoggedIn && privilege) {
+        if (privilege === "admin") {
+            res.render('admin.ejs', {});
+        } else {
+            res.redirect('/');
+        }
+    }
+});
+
+app.post('/admin', function (req, res) {
+    const produs = Object.values(req.body);
+    console.log(produs);
+    const productName = produs[0]; // Get the product name from the request body
+    const productPrice = produs[1]; // Get the price from the request body
+    const productDescription = produs[2]; // Get the price from the request body
+
+    const sql = 'INSERT INTO produse (name, price, description) VALUES (?, ?, ?)';
+    con.query(sql, [productName, productPrice, productDescription], function (error, results) {
+        if (error) {
+            console.error('Error adding product:', error);
+            res.sendStatus(500);
+            return;
+        } else {
+            console.log('Product inserted successfully');
+            res.redirect('/');
+        }
+    });
+});
 
 app.listen(port, () => console.log(`Serverul rulează la adresa http://localhost:` + port));
