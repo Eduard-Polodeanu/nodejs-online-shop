@@ -1,37 +1,38 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-  <title>Acasă</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/form-style.css">
-</head>
+  <head>
+    <title>Acasă</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/form-style.css">
+  </head>
 
-<body>
-  <nav>
-    <% if (usernameSession) { %>
-      <p style="margin: 0; display: inline-block;">Autentificat ca <%= contSession.username %>
-      </p>
-      <form action="/logout" method="POST" style="display: inline-block;">
-        <button type="submit">Sign Out</button>
-      </form>
+  <body>
+    <nav>
+      <% if (usernameSession) { %>
+        <p style="margin: 0; display: inline-block;">Autentificat ca <%= contSession.username %></p>
+        <form action="/logout" method="POST" style="display: inline-block;">
+          <button type="submit">Sign Out</button>
+        </form>
       <% } else { %>
         <a href="/autentificare">Please log in</a>
-        <% } %>
-          
-  </nav>
+      <% } %>
+    </nav>
 
-  <div class="flex-container">
-    <div class="empty-side-div"></div>
+    <div class="flex-container">
+      <div class="empty-side-div"></div>
 
-    <div class="content-layout">
-      <%- body %>
+      <div class="content-layout">
+        <%- body %>
+      </div>
+
+      <div class="empty-side-div"></div>
     </div>
 
-    <div class="empty-side-div"></div>
+    <footer>
+      <p>Polodeanu Eduard<br>Grupa 1308B</p>
+    </footer>
 
-  </div>
-
-</body>
+  </body>
 
 </html>

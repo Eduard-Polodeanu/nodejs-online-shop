@@ -1,53 +1,52 @@
 <!DOCTYPE html>
 <html>
 
-<body>
-  <% if (usernameCookie && userLoggedIn) { %>
-    <p>Bine ai venit, <%= usernameCookie %>!</p>
+  <body>
+    <% if (usernameCookie && userLoggedIn) { %>
+        <p>Bine ai venit, <%= usernameCookie %>!</p>
     <% } %>
 
-      <form action="/creare-bd" method="GET">
-        <button type="submit">Creare BD</button>
-      </form>
+    <form action="/creare-bd" method="GET">
+      <button type="submit">Creare BD</button>
+    </form>
 
-      <form>
-        <button type="submit">Încarcare BD</button>
-      </form>
+    <form action="/inserare-bd" method="GET">
+      <button type="submit">Încarcare BD</button>
+    </form>
 
-      <h1>Listă de produse disponibile:</h1>
-      <% if (produse.length> 0) { %>
-        <ul>
-          <% produse.forEach(function (produs) { %>
-            <li>
-              <%= produs.name %> - începând de la <%= produs.price %> € <br>
-                  <%= produs.description %> <br>
-                    <% if (userLoggedIn) { %>
-                      <form action="/adaugare_cos" method="POST" style="display: inline-block;">
-                        <input type="hidden" name="id" value="<%= produs.id %>">
-                        <button type="submit">Adaugă în coș</button>
-                      </form>
-                      <% } %>
-            </li>
-            <br>
-            <% }); %>
-        </ul>
-        <% } else { %>
-          <p>No products available.</p>
-          <% } %>
-
-
-            <% if (userLoggedIn) { %>
-              <form action="/vizualizare-cos" method="GET">
-                <button type="submit">Vizualizează coș</button>
+    <h1>Listă de produse disponibile:</h1>
+    <% if (produse.length> 0) { %>
+      <ul>
+        <% produse.forEach(function (produs) { %>
+           <li>
+             <%= produs.name %> - începând de la <%= produs.price %> € <br>
+             <%= produs.description %> <br>
+             <% if (userLoggedIn) { %>
+              <form action="/adaugare_cos" method="POST" style="display: inline-block;">
+                <input type="hidden" name="id" value="<%= produs.id %>">
+                 <button type="submit">Adaugă în coș</button>
               </form>
-              <% } %>
+            <% } %>
+          </li>
+           <br>
+         <% }); %>
+      </ul>
+    <% } else { %>
+      <p>Nu există produse disponibile momentan.</p>
+    <% } %>
+    
+    <% if (userLoggedIn) { %>           
+      <form action="/vizualizare-cos" method="GET">          
+        <button type="submit">Vizualizează coș</button>              
+      </form>              
+    <% } %>
+                
+    <% if (userLoggedIn && isAdmin) { %>                  
+      <form action="/admin" method="GET">                    
+        <button type="submit">Către pagină administrator</button>                  
+      </form>                  
+    <% } %>
 
-                <% if (userLoggedIn && isAdmin) { %>
-                  <form action="/admin" method="GET">
-                    <button type="submit">Către pagină administrator</button>
-                  </form>
-                  <% } %>
-
-</body>
-
+  </body>
+  
 </html>

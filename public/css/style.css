@@ -15,7 +15,18 @@ nav {
     border: 2px black solid;
     border-bottom-width: 1px;
     overflow: hidden;
-    text-align: center; 
+    text-align: center;
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 16px;
+    padding: 3px;
+    color: #3F3A2E;
 }
 
 .flex-container {
@@ -23,7 +34,7 @@ nav {
 }
 
 .content-layout {
-    flex: 5;
+    flex: 2;
 }
 
 .empty-side-div {

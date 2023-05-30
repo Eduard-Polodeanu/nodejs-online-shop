@@ -71,41 +71,44 @@ app.all("*", (req, res, next) => {
     next();
 });
 
-
 app.get('/', (req, res) => {
     const usernameCookie = req.cookies.usernameCookie;
 
-    con.query('SELECT * FROM produse', function (error, results) {
-        if (error) {
-            console.error('Error fetching data from "produse" table:', error);
-            res.status(500).send('Internal Server Error');
-            return;
+    con.connect(function (err) {
+        if (err) {
+            res.status(500).send('Internal Server Error: Eroare la conectarea la baze de date');
+            throw err;
         }
 
-        const isLoggedIn = req.session.usernameSession ? true : false;
+        con.query('SELECT * FROM produse', function (error, results) {  // accesarea tabelei pentru afisarea listei de produse
+            if (error) {
+                console.error('Eroare la accesarea datelor din tabela "produse":', error);
+                res.status(501).send('Internal Server Error: Eroare la accesarea datelor din tabela "produse"');
+                return;
+            }
 
-        if (req.session.contSession) {
-            var isAdmin = req.session.contSession.rol === "admin" ? true : false;
-        }
+            const isLoggedIn = req.session.usernameSession ? true : false;
 
-        res.render('index.ejs', { usernameCookie: usernameCookie, produse: results, userLoggedIn: isLoggedIn, isAdmin: isAdmin });
+            if (req.session.contSession) {
+                var isAdmin = req.session.contSession.rol === "admin" ? true : false;
+            }
+
+            res.render('index.ejs', { usernameCookie: usernameCookie, produse: results, userLoggedIn: isLoggedIn, isAdmin: isAdmin });
+        });
     });
 });
 
-// la accesarea din browser adresei http://localhost:6789/chestionar se va apela funcția specificată
 app.get('/chestionar', (req, res) => {
     const fs = require('fs');
 
-    //citire intrebari din fisier
     fs.readFile('public\\intrebari.json', 'utf8', (err, data) => {
         if (err) {
-            console.error(err);
-            return;
+            res.status(505).send('Internal Server Error: Eroare la citirea fisierului');
+            throw err;
         }
-        const listaIntrebari = JSON.parse(data);
-        //console.log(listaIntrebari);
 
-        // în fișierul views/chestionar.ejs este accesibilă variabila 'intrebari' care conține vectorul de întrebări
+        const listaIntrebari = JSON.parse(data);
+
         res.render('chestionar', { intrebari: listaIntrebari });
     });
 });
@@ -113,18 +116,19 @@ app.get('/chestionar', (req, res) => {
 app.post('/rezultat-chestionar', (req, res) => {
     const raspunsuriCorecte = [0, 3, 3, 3, 1, 0, 3, 3];
     const raspunsuriUser = Object.values(req.body);
+
     if (raspunsuriUser.length != raspunsuriCorecte.length) {
-        res.status(400).send("Error 400: You must answer to all questions!");
+        res.status(400).send("Client Error: Trebuie să răspundeți la toate întrebările!");
         return;
     }
-    res.render('rezultat-chestionar', { raspunsuriU: raspunsuriUser, raspunsuriC: raspunsuriCorecte });
 
-    //console.log(req.body);
+    res.render('rezultat-chestionar', { raspunsuriU: raspunsuriUser, raspunsuriC: raspunsuriCorecte });
 });
 
 app.get('/autentificare', (req, res) => {
-
+    res.clearCookie('mesajEroareCookie');   // stergere cookie cu mesajul de eroare de la incercarile anterioare
     const cookieError = req.cookies.mesajEroareCookie;
+
     res.render('autentificare', { cookieError: cookieError });
 });
 
@@ -148,7 +152,6 @@ app.post('/verificare-autentificare', (req, res) => {
 
             if (cont.username === numeContIntrodus && cont.password === parolaContIntrodus) {
                 res.cookie('usernameCookie', numeContIntrodus); // creare cookie cu numele contului autentificat
-                res.clearCookie('mesajEroareCookie');   // stergere cookie cu mesajul de eroare de la incercarile anterioare
 
                 const { password, ...contLogatFaraParola } = cont;  // stochez, fara parola, contul curent in variabila contLogatFaraParola
                 req.session.contSession = contLogatFaraParola;
@@ -183,35 +186,40 @@ app.post('/verificare-autentificare', (req, res) => {
 app.post('/logout', (req, res) => {
     res.clearCookie('usernameCookie');
     req.session.destroy();
+
     res.redirect('/');
 });
 
 app.get('/creare-bd', (req, res) => {
     con.connect(function (err) {
-        if (err) throw err;
-        console.log("Connected!");
+        if (err) {
+            res.status(500).send('Internal Server Error: Eroare la conectarea la baze de date');
+            throw err;
+        }
 
-        con.query("CREATE DATABASE IF NOT EXISTS cumparaturi", function (err, result) {
+        con.query("CREATE DATABASE IF NOT EXISTS cumparaturi", function (err) {
             if (err) {
                 if (error.code === 'ER_DB_CREATE_EXISTS') {
-                    console.log('Database "cumparaturi" already exists');
+                    console.log('Baza de date "cumparaturi" există deja!');
                 } else {
-                    console.error('Error creating database:', error);
+                    console.error('Eroare la crearea bazei de date:', err);
                 }
+                res.status(502).send('Internal Server Error: Eroare la crearea bazei de date');
             }
-            console.log("Database created");
+            console.log("Baza de date a fost creată cu succes!");
         });
 
         var sql = "CREATE TABLE IF NOT EXISTS produse (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255) NOT NULL, price DECIMAL(10, 2) NOT NULL, description TEXT)";
-        con.query(sql, function (err, result) {
+        con.query(sql, function (err) {
             if (err) {
                 if (error.code === 'ER_TABLE_EXISTS_ERROR') {
-                    console.log('Table "produse" already exists');
+                    console.log('Tabela "produse" există deja!');
                 } else {
-                    console.error('Error creating table:', error);
+                    console.error('Eroare la crearea tabelei:', err);
                 }
+                res.status(503).send('Internal Server Error: Eroare la crearea tabelei');
             }
-            console.log("Table created");
+            console.log("Tabelă creată cu succes!");
         });
     });
 
@@ -220,23 +228,24 @@ app.get('/creare-bd', (req, res) => {
 
 app.get('/inserare-bd', (req, res) => {
     const products = [
-        { name: 'Product 1', price: 10.99, description: 'Description of Product 1' },
-        { name: 'Product 2', price: 19.99, description: 'Description of Product 2' },
-        { name: 'Product 3', price: 24.99, description: 'Description of Product 3' }
+        { name: 'Produs 1', price: 10.99, description: 'Descriere produs 1' },
+        { name: 'Produs 2', price: 19.99, description: 'Descriere produs 2' },
+        { name: 'Produs 3', price: 24.99, description: 'Descriere produs 3' }
     ];
 
     con.connect(function (err) {
-        if (err) throw err;
-        console.log("Connected!");
+        if (err) {
+            res.status(500).send('Internal Server Error: Eroare la conectarea la baze de date');
+            throw err;
+        }
 
-        // Iterate over the products array and insert each product into the table
         products.forEach((product) => {
-            con.query('INSERT INTO produse SET ?', product, (error, results, fields) => {
+            con.query('INSERT INTO produse SET ?', product, (error) => {
                 if (error) {
-                    console.error('Error inserting product:', error);
-                    return;
+                    res.status(504).send('Internal Server Error: Eroare la inserarea produselor');
+                    throw error;
                 }
-                console.log('Product inserted successfully');
+                console.log('Produs inserat cu succes!');
             });
         });
     });
@@ -245,11 +254,11 @@ app.get('/inserare-bd', (req, res) => {
 });
 
 app.post('/adaugare_cos', function (req, res) {
-    const idProdus = req.body.id;
+    const idProdus = req.body.id;   // id-ul produsului selectat din form 
 
-    let cos = req.session.cos || [];
-    cos.push(idProdus);
-    req.session.cos = cos;
+    let cos = req.session.cos || [];    // initializare lista sau primeste produsele din session daca este cazul
+    cos.push(idProdus); // adauga id-ul produsului curent
+    req.session.cos = cos;  // actualizeaza cosul
 
     res.redirect('/');
 });
@@ -269,9 +278,8 @@ app.get('/vizualizare-cos', function (req, res) {
 
         con.query('SELECT * FROM produse WHERE id IN (?)', [cos], function (error, results) {
             if (error) {
-                console.error(error);
-                res.sendStatus(500);
-                return;
+                res.status(506).send('Internal Server Error: Eroare la selectarea produselor din cos');
+                throw error;
             }
             res.render('vizualizare-cos.ejs', { produseCos: results, cantitateProduse: cantitateProduse });
         });
@@ -299,24 +307,21 @@ app.get('/admin', function (req, res) {
 
 app.post('/admin', function (req, res) {
     const produs = Object.values(req.body);
-    console.log(produs);
-    const productName = produs[0]; // Get the product name from the request body
-    const productPrice = produs[1]; // Get the price from the request body
-    const productDescription = produs[2]; // Get the price from the request body
+    const productName = produs[0];
+    const productPrice = produs[1];
+    const productDescription = produs[2];
 
     const sql = 'INSERT INTO produse (name, price, description) VALUES (?, ?, ?)';
     con.query(sql, [productName, productPrice, productDescription], function (error, results) {
         if (error) {
-            console.error('Error adding product:', error);
-            res.sendStatus(500);
-            return;
+            res.status(504).send('Internal Server Error: Eroare la inserarea produselor');
+            throw error;
         } else {
-            console.log('Product inserted successfully');
+            console.log('Produs inserat cu succes!');
             res.redirect('/');
         }
     });
 });
-
 
 app.all("*", (req, res, next) => {
     const { ip } = req;
