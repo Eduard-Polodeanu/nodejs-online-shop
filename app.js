@@ -45,9 +45,28 @@ app.use(bodyParser.json());
 // utilizarea unui algoritm de deep parsing care suportă obiecte în obiecte
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// la accesarea din browser adresei http://localhost:6789/ se va returna textul 'Hello World'
-// proprietățile obiectului Request - req - https://expressjs.com/en/api.html#req
-// proprietățile obiectului Response - res - https://expressjs.com/en/api.html#res
+
+// Set up a map to store failed attempts count for each IP address
+const failedAttempts = new Map();
+
+// Maximum number of allowed failed attempts
+const maxFailedAttempts = 3;
+
+// Route handler for all routes
+app.all("*", (req, res, next) => {
+  const { ip, path } = req;
+
+  //failedAttempts.set(ip, 0);
+
+  if (failedAttempts.get(ip) >= maxFailedAttempts) {
+    return res.status(403).send("Acces blocat din cauza numărului excesiv de încercări eșuate.");
+  }
+
+  next();
+});
+
+
+
 app.get('/', (req, res) => {
     const usernameCookie = req.cookies.usernameCookie;
 
@@ -245,6 +264,8 @@ app.get('/vizualizare-cos', function (req, res) {
             }
             res.render('vizualizare-cos.ejs', { produseCos: results, cantitateProduse: cantitateProduse });
         });
+    } else {
+        res.redirect('/');
     }
 });
 
@@ -284,5 +305,24 @@ app.post('/admin', function (req, res) {
         }
     });
 });
+
+
+app.all("*", (req, res, next) => {
+    const { ip, path } = req;
+    // Check if the resource exists or not
+    if (res.status(404)) {
+      // Increment the failed attempts count for the IP
+      const currentFailedAttempts = failedAttempts.get(ip) || 0;
+      failedAttempts.set(ip, currentFailedAttempts + 1);
+  
+      return res.status(404).send("Resource does not exist.");
+    }
+  
+    // Resource exists, reset the failed attempts count for the IP
+    failedAttempts.delete(ip);
+  
+    next();
+  });
+
 
 app.listen(port, () => console.log(`Serverul rulează la adresa http://localhost:` + port));

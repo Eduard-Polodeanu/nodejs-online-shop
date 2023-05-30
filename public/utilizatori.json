@@ -1,11 +1,19 @@
 [
     {
+        "username": "admin",
+        "password": "admin",
+        "firstName": "Admin",
+        "lastName": " ",
+        "age": 0,
+        "rol": "admin"
+    },
+    {
         "username": "ion123",
         "password": "parola123",
         "firstName": "Ion",
         "lastName": "Popescu",
         "age": 30,
-        "rol": "admin"
+        "rol": "standard"
     },
     {
         "username": "maria456",
