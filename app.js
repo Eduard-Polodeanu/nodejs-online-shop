@@ -47,23 +47,28 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 const blockedIPs = new Map();  //variabila globala folosita pentru a stoca incercarile de a accesa resurse neexistente si timpul de timeout pentru fiecare adresa ip
-const maxFailedAttempts = 3;
+const maxFailedResourceAttempts = 3;
+const maxFailedLoginAttempts = 3;
 const unblockTimeoutDuration = 0.25 * 60 * 1000; // 0.25 minute durata pentru deblocarea ip-ului banat
 
 app.all("*", (req, res, next) => {
-  const { ip } = req;
+    const { ip } = req;
 
-  if (blockedIPs.has(ip)) { // verific daca ip-ul curent este blocat 
-    const { failedAttempts, unblockTimeout } = blockedIPs.get(ip);
+    if (blockedIPs.has(ip)) { // verific daca ip-ul curent este blocat 
+        const { failedResourceAttempts, failedLoginAttempts, unblockTimeout } = blockedIPs.get(ip);
 
-    if (failedAttempts >= maxFailedAttempts) {
-      return res.status(403).send("Acces blocat din cauza numărului excesiv de încercări eșuate.");
+        if (failedResourceAttempts >= maxFailedResourceAttempts) {
+            return res.status(403).send("Acces blocat din cauza numărului excesiv de încercări eșuate de a accesa o resursă neexistentă.");
+        }
+
+        if (failedLoginAttempts >= maxFailedLoginAttempts) {
+            return res.status(403).send("Acces blocat din cauza numărului excesiv de încercări eșuate de autentificare.");
+        }
+
+        clearTimeout(unblockTimeout); // resetez timeout-ul
     }
 
-    clearTimeout(unblockTimeout); // resetez timeout-ul daca se acceseaza o resursa valida
-  }
-
-  next();
+    next();
 });
 
 
@@ -80,7 +85,7 @@ app.get('/', (req, res) => {
         const isLoggedIn = req.session.usernameSession ? true : false;
 
         if (req.session.contSession) {
-            var isAdmin = req.session.contSession.rol === "admin" ? true : false; 
+            var isAdmin = req.session.contSession.rol === "admin" ? true : false;
         }
 
         res.render('index.ejs', { usernameCookie: usernameCookie, produse: results, userLoggedIn: isLoggedIn, isAdmin: isAdmin });
@@ -124,45 +129,50 @@ app.get('/autentificare', (req, res) => {
 });
 
 app.post('/verificare-autentificare', (req, res) => {
-
+    const { ip } = req;
     const fs = require('fs');
 
-    //citire conturi din fisier
-    fs.readFile('public\\utilizatori.json', 'utf8', (err, data) => {
+    fs.readFile('public\\utilizatori.json', 'utf8', (err, data) => {    // citire lista conturi din fisier
         if (err) {
             console.error(err);
             return;
         }
+
         const conturiJSON = JSON.parse(data);
-
-        //citire cont input utilizator
-        const contIntrodus = Object.values(req.body);
-
-        //console.log(conturiJSON);
-        //console.log(contIntrodus);
-
+        const contIntrodus = Object.values(req.body);   // citire cont input utilizator
         const numeContIntrodus = contIntrodus[0];
         const parolaContIntrodus = contIntrodus[1];
-        for (var i = 0; i < conturiJSON.length; i++) {
+
+        for (var i = 0; i < conturiJSON.length; i++) {  // verificare date introduse cu fiecare cont din fisier 
             var cont = conturiJSON[i];
 
             if (cont.username === numeContIntrodus && cont.password === parolaContIntrodus) {
-                res.cookie('usernameCookie', numeContIntrodus);
-                res.clearCookie('mesajEroareCookie');
+                res.cookie('usernameCookie', numeContIntrodus); // creare cookie cu numele contului autentificat
+                res.clearCookie('mesajEroareCookie');   // stergere cookie cu mesajul de eroare de la incercarile anterioare
 
-                const contLogat = conturiJSON[i];
-                // Exclude the password property from the contLogat object
-                const { password, ...contLogatFaraParola } = contLogat;
+                const { password, ...contLogatFaraParola } = cont;  // stochez, fara parola, contul curent in variabila contLogatFaraParola
                 req.session.contSession = contLogatFaraParola;
-                req.session.usernameSession = contLogat.username;
+                req.session.usernameSession = cont.username;
 
-                //console.log(contLogatFaraParola);
                 res.redirect('http://localhost:6789/');
-
                 return;
-            } else if (i == conturiJSON.length - 1) {
-                res.cookie('mesajEroareCookie', 'Date incorecte.');
-                req.session.destroy();
+
+            } else if (i == conturiJSON.length - 1) {   // 
+                res.cookie('mesajEroareCookie', 'Date incorecte.'); // setare cookie cu mesajul de eroare
+
+                // variabile pentru a gestiona timeout-ul in caz de incercari nereusite multiple
+                let { failedLoginAttempts, unblockTimeout } = blockedIPs.get(ip) || { failedLoginAttempts: 0, unblockTimeout: null };
+                failedLoginAttempts++;
+
+                if (failedLoginAttempts >= maxFailedLoginAttempts) {    // blochez ip-ul curent si setez setez timeout-ul
+                    const unblockTimeout = setTimeout(() => {
+                        blockedIPs.delete(ip);
+                    }, unblockTimeoutDuration);
+                    blockedIPs.set(ip, { failedLoginAttempts, unblockTimeout });
+                } else {
+                    blockedIPs.set(ip, { failedLoginAttempts, unblockTimeout });
+                }
+
                 res.redirect('http://localhost:6789/autentificare');
             }
         }
@@ -310,27 +320,27 @@ app.post('/admin', function (req, res) {
 
 app.all("*", (req, res, next) => {
     const { ip } = req;
-  
-    if (res.status(404)) {   // verific daca resursa ceruta este valida
-      let { failedAttempts, unblockTimeout } = blockedIPs.get(ip) || { failedAttempts: 0, unblockTimeout: null };
-      failedAttempts++;
-  
-      if (failedAttempts >= maxFailedAttempts) {    // blochez ip-ul curent si setez setez timeout-ul
-        const unblockTimeout = setTimeout(() => {
-          blockedIPs.delete(ip);
-        }, unblockTimeoutDuration);
-        blockedIPs.set(ip, { failedAttempts, unblockTimeout });
-      } else {
-        blockedIPs.set(ip, { failedAttempts, unblockTimeout });
-      }
-  
-      return res.status(404).send("Resursa cerută nu există.");
+
+    if (res.status(404)) {   // verific daca resursa ceruta este valida, iar dupa incercari multiple de accesare, blochez accesul
+        let { failedResourceAttempts, unblockTimeout } = blockedIPs.get(ip) || { failedResourceAttempts: 0, unblockTimeout: null };
+        failedResourceAttempts++;
+
+        if (failedResourceAttempts >= maxFailedResourceAttempts) {    // blochez ip-ul curent si setez setez timeout-ul
+            const unblockTimeout = setTimeout(() => {
+                blockedIPs.delete(ip);
+            }, unblockTimeoutDuration);
+            blockedIPs.set(ip, { failedResourceAttempts, unblockTimeout });
+        } else {
+            blockedIPs.set(ip, { failedResourceAttempts, unblockTimeout });
+        }
+
+        return res.status(404).send("Resursa cerută nu există.");
     }
-  
+
     blockedIPs.delete(ip);  // resursa ceruta exista si scot ip-ul curent din lista de ip-uri blocate
-  
+
     next();
-  });
+});
 
 
 app.listen(port, () => console.log(`Serverul rulează la adresa http://localhost:` + port));
