@@ -46,25 +46,25 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-// Set up a map to store failed attempts count for each IP address
-const failedAttempts = new Map();
-
-// Maximum number of allowed failed attempts
+const blockedIPs = new Map();  //variabila globala folosita pentru a stoca incercarile de a accesa resurse neexistente si timpul de timeout pentru fiecare adresa ip
 const maxFailedAttempts = 3;
+const unblockTimeoutDuration = 0.25 * 60 * 1000; // 0.25 minute durata pentru deblocarea ip-ului banat
 
-// Route handler for all routes
 app.all("*", (req, res, next) => {
-  const { ip, path } = req;
+  const { ip } = req;
 
-  //failedAttempts.set(ip, 0);
+  if (blockedIPs.has(ip)) { // verific daca ip-ul curent este blocat 
+    const { failedAttempts, unblockTimeout } = blockedIPs.get(ip);
 
-  if (failedAttempts.get(ip) >= maxFailedAttempts) {
-    return res.status(403).send("Acces blocat din cauza numărului excesiv de încercări eșuate.");
+    if (failedAttempts >= maxFailedAttempts) {
+      return res.status(403).send("Acces blocat din cauza numărului excesiv de încercări eșuate.");
+    }
+
+    clearTimeout(unblockTimeout); // resetez timeout-ul daca se acceseaza o resursa valida
   }
 
   next();
 });
-
 
 
 app.get('/', (req, res) => {
@@ -86,6 +86,7 @@ app.get('/', (req, res) => {
         res.render('index.ejs', { usernameCookie: usernameCookie, produse: results, userLoggedIn: isLoggedIn, isAdmin: isAdmin });
     });
 });
+
 // la accesarea din browser adresei http://localhost:6789/chestionar se va apela funcția specificată
 app.get('/chestionar', (req, res) => {
     const fs = require('fs');
@@ -308,18 +309,25 @@ app.post('/admin', function (req, res) {
 
 
 app.all("*", (req, res, next) => {
-    const { ip, path } = req;
-    // Check if the resource exists or not
-    if (res.status(404)) {
-      // Increment the failed attempts count for the IP
-      const currentFailedAttempts = failedAttempts.get(ip) || 0;
-      failedAttempts.set(ip, currentFailedAttempts + 1);
+    const { ip } = req;
   
-      return res.status(404).send("Resource does not exist.");
+    if (res.status(404)) {   // verific daca resursa ceruta este valida
+      let { failedAttempts, unblockTimeout } = blockedIPs.get(ip) || { failedAttempts: 0, unblockTimeout: null };
+      failedAttempts++;
+  
+      if (failedAttempts >= maxFailedAttempts) {    // blochez ip-ul curent si setez setez timeout-ul
+        const unblockTimeout = setTimeout(() => {
+          blockedIPs.delete(ip);
+        }, unblockTimeoutDuration);
+        blockedIPs.set(ip, { failedAttempts, unblockTimeout });
+      } else {
+        blockedIPs.set(ip, { failedAttempts, unblockTimeout });
+      }
+  
+      return res.status(404).send("Resursa cerută nu există.");
     }
   
-    // Resource exists, reset the failed attempts count for the IP
-    failedAttempts.delete(ip);
+    blockedIPs.delete(ip);  // resursa ceruta exista si scot ip-ul curent din lista de ip-uri blocate
   
     next();
   });
