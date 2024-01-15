@@ -14,13 +14,11 @@
                     </label>
                     <br>
                     <% question.variante_raspuns.forEach((varianta, indexVariante)=> { %>
-                        <input type="radio" name="intrebare<%= index %>" value=<%=indexVariante %> > <%= varianta %>
-                            </input>
-                            <br>
-                            <% }); %>
-                                <br>
-                                <% }); %>
-                                    <button type="submit">Verifică</button>
+                        <input type="radio" name="intrebare<%= index %>" value=<%=indexVariante %> > <%= varianta %></input><br>
+                    <% }); %>
+                    <br>
+                 <% }); %>
+                <button type="submit">Verifică</button>
             </fieldset>
         </form>
     </div>
