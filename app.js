@@ -62,7 +62,7 @@ app.all("*", (req, res, next) => {
         }
 
         if (failedLoginAttempts >= maxFailedLoginAttempts) {
-            return res.status(403).send("Acces blocat din cauza numărului excesiv de încercări eșuate de autentificare.");
+            return res.status(408).send("Acces blocat din cauza numărului excesiv de încercări eșuate de autentificare.");
         }
 
         clearTimeout(unblockTimeout); // resetez timeout-ul
@@ -349,3 +349,6 @@ app.all("*", (req, res, next) => {
 
 
 app.listen(port, () => console.log(`Serverul rulează la adresa http://localhost:` + port));
+
+// mysql80 service must run to connect to db
+// node app.js
